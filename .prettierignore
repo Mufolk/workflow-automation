@@ -1,0 +1,22 @@
+# Ignore artifacts:
+build/
+dist/
+coverage/
+*.min.js
+
+# Ignore configuration files:
+*.config.js
+*.config.ts
+
+# Ignore specific directories:
+node_modules/
+lib/
+vendor/
+
+# Ignore specific file types:
+*.html
+*.css
+*.scss
+
+# Ignore specific files:
+src/some-file-to-ignore.js

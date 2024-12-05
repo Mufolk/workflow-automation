@@ -24,16 +24,12 @@ npm-debug.log*
 *.sublime-workspace
 
 # Prettier and ESLint
-.prettierignore
 .eslintignore
 .eslintcache
 
 # Husky
 .husky/
 
-# Docker files
-Dockerfile
-docker-compose*.yml
 
 # Coverage directory used by tools like istanbul
 coverage/
