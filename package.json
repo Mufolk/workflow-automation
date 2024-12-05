@@ -1,0 +1,48 @@
+{
+  "name": "workflow-automation",
+  "version": "1.0.0",
+  "description": "Workflow automation for alloy, made with love",
+  "main": "dist/index.js",
+  "scripts": {
+    "start": "node dist/index.js",
+    "dev": "nodemon src/index.ts",
+    "build": "tsc",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "prepare": "npx husky",
+    "lint": "eslint --fix .",
+    "commitlint": "commitlint --from=HEAD~1 --to=HEAD"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm test",
+      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
+    }
+  },
+  "lint-staged": {
+    "*.ts": [
+      "eslint --fix"
+    ]
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^16.4.7",
+    "express": "^4.21.1",
+    "mongoose": "^8.8.3"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^19.6.0",
+    "@commitlint/config-conventional": "^19.6.0",
+    "@types/express": "^5.0.0",
+    "@types/node": "^22.10.1",
+    "eslint": "^9.16.0",
+    "eslint-define-config": "^2.1.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^15.2.10",
+    "nodemon": "^3.1.7",
+    "prettier": "^3.4.2",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.7.2"
+  }
+}
