@@ -5,4 +5,8 @@ services:
     ports:
       - "3000:3000"
     environment:
-      - NODE_ENV=development
+      - DATABASE_URL=mongodb://mongo:27017/workflow
+  mongo:
+    image: mongo
+    ports:
+      - "27017:27017"
