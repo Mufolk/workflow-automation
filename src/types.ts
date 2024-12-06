@@ -6,10 +6,14 @@ export interface TriggerData {
 }
 
 export interface ActionData {
+  _id?: Types.ObjectId; // Optional, but commonly used in documents
+  __v?: number; // Optional, for version key
   type: string;
   parameters: object;
   status: 'PENDING' | 'IN_PROGRESS' | 'COMPLETED' | 'FAILED';
   workflowId: Types.ObjectId;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface WorkflowData {

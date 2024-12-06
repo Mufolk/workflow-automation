@@ -1,16 +1,20 @@
-// actionController.test.ts
-
 import { Request, Response } from 'express';
 import { ActionController } from '../../src/controllers/actionController';
 import { ActionService } from '../../src/services/actionService';
+import { ActionUnion, HttpRequestAction } from '../../src/types';
+import { Types } from 'mongoose';
 
-jest.mock('../services/actionService');
+jest.mock('../../src/services/actionService');
 
 describe('ActionController', () => {
   let actionController: ActionController;
   let mockRequest: Partial<Request>;
   let mockResponse: Partial<Response>;
   let actionService: jest.Mocked<ActionService>;
+
+  // Create reusable ObjectId instances for tests
+  const mockWorkflowId = new Types.ObjectId();
+  const mockActionId = new Types.ObjectId();
 
   beforeEach(() => {
     actionController = new ActionController();
@@ -27,13 +31,32 @@ describe('ActionController', () => {
     jest.clearAllMocks();
   });
 
+  // Base action mock generator function
+  const createBaseHttpRequestAction = (overrides = {}): HttpRequestAction => {
+    return {
+      _id: mockActionId, // Reusing the mock Action ID
+      __v: 0,
+      type: 'httpRequest',
+      parameters: {
+        url: 'http://test.com',
+        method: 'GET',
+        headers: {},
+        body: null,
+      },
+      status: 'PENDING',
+      workflowId: mockWorkflowId, // Reusing the mock Workflow ID
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      ...overrides,
+    };
+  };
+
   describe('createAction', () => {
     it('should create a new action and return it', async () => {
-      const actionData = { id: 1, name: 'Test Action' };
-      const newAction = { ...actionData, createdAt: new Date() };
+      const actionData: HttpRequestAction = createBaseHttpRequestAction();
 
       mockRequest.body = actionData;
-      actionService.createAction.mockResolvedValue(newAction);
+      actionService.createAction.mockResolvedValue(actionData as any);
 
       await actionController.createAction(
         mockRequest as Request,
@@ -42,11 +65,12 @@ describe('ActionController', () => {
 
       expect(actionService.createAction).toHaveBeenCalledWith(actionData);
       expect(mockResponse.status).toHaveBeenCalledWith(201);
-      expect(mockResponse.json).toHaveBeenCalledWith(newAction);
+      expect(mockResponse.json).toHaveBeenCalledWith(actionData);
     });
 
     it('should handle errors when creating an action', async () => {
-      const actionData = { id: 1, name: 'Test Action' };
+      const actionData: HttpRequestAction = createBaseHttpRequestAction();
+
       mockRequest.body = actionData;
       actionService.createAction.mockRejectedValue(
         new Error('Creation failed')
@@ -67,13 +91,14 @@ describe('ActionController', () => {
 
   describe('updateActionStatus', () => {
     it('should update the action status and return the updated action', async () => {
-      const actionId = '1';
-      const newStatus = 'completed';
-      const updatedAction = { id: actionId, status: newStatus };
+      const newStatus = 'COMPLETED';
+      const updatedAction: HttpRequestAction = createBaseHttpRequestAction({
+        status: newStatus,
+      });
 
-      mockRequest.params = { actionId };
+      mockRequest.params = { actionId: mockActionId.toString() };
       mockRequest.body = { newStatus };
-      actionService.updateActionStatus.mockResolvedValue(updatedAction);
+      actionService.updateActionStatus.mockResolvedValue(updatedAction as any);
 
       await actionController.updateActionStatus(
         mockRequest as Request,
@@ -81,17 +106,16 @@ describe('ActionController', () => {
       );
 
       expect(actionService.updateActionStatus).toHaveBeenCalledWith(
-        actionId,
+        mockActionId.toString(),
         newStatus
       );
       expect(mockResponse.json).toHaveBeenCalledWith(updatedAction);
     });
 
     it('should handle errors when updating action status', async () => {
-      const actionId = '1';
-      const newStatus = 'completed';
+      const newStatus = 'COMPLETED';
 
-      mockRequest.params = { actionId };
+      mockRequest.params = { actionId: mockActionId.toString() };
       mockRequest.body = { newStatus };
       actionService.updateActionStatus.mockRejectedValue(
         new Error('Update failed')
@@ -112,11 +136,10 @@ describe('ActionController', () => {
 
   describe('findActionsByWorkflowId', () => {
     it('should return actions for the given workflowId', async () => {
-      const workflowId = '123';
-      const actions = [{ id: 1, workflowId, name: 'Test Action' }];
+      const actions: ActionUnion[] = [createBaseHttpRequestAction()];
 
-      mockRequest.params = { workflowId };
-      actionService.findActionsByWorkflowId.mockResolvedValue(actions);
+      mockRequest.params = { workflowId: mockWorkflowId.toString() };
+      actionService.findActionsByWorkflowId.mockResolvedValue(actions as any);
 
       await actionController.findActionsByWorkflowId(
         mockRequest as Request,
@@ -124,14 +147,13 @@ describe('ActionController', () => {
       );
 
       expect(actionService.findActionsByWorkflowId).toHaveBeenCalledWith(
-        workflowId
+        mockWorkflowId.toString()
       );
       expect(mockResponse.json).toHaveBeenCalledWith(actions);
     });
 
     it('should handle errors when fetching actions by workflow Id', async () => {
-      const workflowId = '123';
-      mockRequest.params = { workflowId };
+      mockRequest.params = { workflowId: mockWorkflowId.toString() };
       actionService.findActionsByWorkflowId.mockRejectedValue(
         new Error('Fetch failed')
       );
