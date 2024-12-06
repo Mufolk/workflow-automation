@@ -1,41 +1,53 @@
-// src/types.ts
+import { Types } from 'mongoose';
 
-// Define the ActionData interface
+export interface TriggerData {
+  type: string;
+  params: object;
+}
+
 export interface ActionData {
-  type: string; // Type of the action (e.g., "httpRequest", "logMessage")
-  parameters: object; // Parameters specific to the action type
-  status?: 'pending' | 'in-progress' | 'completed' | 'failed'; // Status of the action
-  workflowId: string; // Reference to the associated workflow
-  createdAt?: Date; // Optional timestamp for when the action was created
-  updatedAt?: Date; // Optional timestamp for the last update
+  type: string;
+  parameters: object;
+  status: 'PENDING' | 'IN_PROGRESS' | 'COMPLETED' | 'FAILED';
+  workflowId: Types.ObjectId;
 }
 
-// Define the WorkflowData interface
 export interface WorkflowData {
-  name: string; // Name of the workflow
-  trigger: string; // Type of trigger (e.g., "time-based", "webhook")
-  actions: ActionData[]; // Array of actions associated with the workflow
-  lastExecutionState?: object | null; // State of the last execution (optional)
+  name: string;
+  trigger: TriggerData;
+  actions: ActionData[];
+  lastExecutionState?: object | null;
 }
 
-// Define specific action types
 export interface HttpRequestAction extends ActionData {
-  type: 'httpRequest'; // This action type
+  type: 'httpRequest';
   parameters: {
-    url: string; // URL for the HTTP request
-    method: 'GET' | 'POST' | 'PUT' | 'DELETE'; // HTTP method
-    headers?: Record<string, string>; // Optional headers
-    body?: any; // Optional body for POST/PUT requests
+    url: string;
+    method: 'GET' | 'POST' | 'PUT' | 'DELETE';
+    headers?: Record<string, string>;
+    body?: any;
   };
 }
 
-// Define a logging action type
 export interface LogMessageAction extends ActionData {
-  type: 'logMessage'; // This action type
+  type: 'logMessage';
   parameters: {
-    message: string; // The message to log
+    message: string;
   };
 }
 
-// Union type for all possible actions
+export interface WebhookTrigger extends TriggerData {
+  type: 'webhook';
+  params: {
+    webHookUrl: string;
+  };
+}
+
+export interface TimerTrigger extends TriggerData {
+  type: 'timer';
+  params: {
+    interval: number;
+  };
+}
+
 export type ActionUnion = HttpRequestAction | LogMessageAction;

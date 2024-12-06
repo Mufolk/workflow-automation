@@ -1,26 +1,37 @@
-// src/services/actionService.ts
+import { Action } from '../models/action'; 
+import { ActionUnion } from '../types';
+import { AppError } from '../utils/errorHandler';
 
-import { Action } from '../models/action';
+export class ActionService {
+  async createAction(actionData: ActionUnion) {
+    try {
+      const newAction = new Action(actionData);
+      await newAction.save();
+      return newAction;
+    } catch (error) {
+      throw new AppError('Error creating action', 500);
+    }
+  }
 
-// Function to create a new action
-export const createActionService = async (
-  workflowId: string,
-  type: string,
-  parameters: object
-) => {
-  const newAction = new Action({
-    type,
-    parameters,
-    workflowId,
-  });
+  async updateActionStatus(
+    actionId: string,
+    newStatus: 'PENDING' | 'IN_PROGRESS' | 'COMPLETED' | 'FAILED'
+  ) {
+    const action = await Action.findById(actionId);
+    if (action) {
+      action.status = newStatus; 
+      await action.save(); 
+      return action;
+    } else {
+      throw new AppError('Action not found.', 404);
+    }
+  }
 
-  await newAction.save(); // Save the action to the database
-  return newAction; // Return the created action
-};
-
-// Function to retrieve an action by ID
-export const getActionByIdService = async (actionId: string) => {
-  return await Action.findById(actionId); // Fetch action from the database
-};
-
-// Additional CRUD operations can be added here
+  async findActionsByWorkflowId(workflowId: string) {
+    try {
+      return Action.find({ workflowId });
+    } catch (error) {
+      throw new AppError('Error fetching actions', 500);
+    }
+  }
+}

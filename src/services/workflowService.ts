@@ -1,17 +1,44 @@
-// src/services/workflowService.ts
-
-import { Workflow } from '../models/workflow'; // Import the Workflow model
-import { WorkflowData } from '../types'; // Assuming you have defined types for your workflows
+import { Workflow } from '../models/workflow';
+import { WorkflowData } from '../types';
+import { AppError } from '../utils/errorHandler';
 
 export const createWorkflowService = async (workflowData: WorkflowData) => {
-  const newWorkflow = new Workflow(workflowData);
-  await newWorkflow.save();
-  return newWorkflow;
+  try {
+    const newWorkflow = new Workflow(workflowData);
+    await newWorkflow.save();
+    return newWorkflow;
+  } catch (error) {
+    throw new AppError('Error creating workflow', 500);
+  }
 };
 
 export const getAllWorkflowsService = async () => {
-  const workflows = await Workflow.find();
-  return workflows;
+  try {
+    const workflows = await Workflow.find();
+    return workflows;
+  } catch (error) {
+    throw new AppError('Error fetching workflows', 500);
+  }
 };
 
-// Additional workflow-related services can be added here
+
+export const updateWorkflowService = async (
+  id: string,
+  workflowData: WorkflowData
+) => {
+  const updatedWorkflow = await Workflow.findByIdAndUpdate(id, workflowData, {
+    new: true,
+  });
+  if (!updatedWorkflow) {
+    throw new AppError('Workflow not found', 404);
+  }
+  return updatedWorkflow;
+};
+
+
+export const deleteWorkflowService = async (id: string) => {
+  const deletedWorkflow = await Workflow.findByIdAndDelete(id);
+  if (!deletedWorkflow) {
+    throw new AppError('Workflow not found', 404);
+  }
+};
