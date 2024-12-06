@@ -8,15 +8,8 @@
     "dev": "nodemon src/index.ts",
     "build": "tsc",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "prepare": "npx husky",
     "lint": "eslint --fix .",
     "commitlint": "commitlint --from=HEAD~1 --to=HEAD"
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "npm test",
-      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
-    }
   },
   "lint-staged": {
     "*.ts": [
